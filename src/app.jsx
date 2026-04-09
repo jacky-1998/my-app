@@ -7,11 +7,24 @@ const DB_VERSION = 1;
 // 初始化数据库
 const initDB = () => {
   return new Promise((resolve, reject) => {
+    // 检查是否在本地文件模式下
+    if (window.location.protocol === 'file:') {
+      console.log('本地文件模式，使用内存存储');
+      reject('本地文件模式');
+      return;
+    }
+    
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     
-    request.onerror = () => reject('数据库连接失败');
+    request.onerror = () => {
+      console.error('数据库连接失败');
+      reject('数据库连接失败');
+    };
     
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => {
+      console.log('数据库连接成功');
+      resolve(request.result);
+    };
     
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
@@ -224,7 +237,7 @@ const StatusBar = () => (
 
 // 底部导航栏
 const TabBar = ({ currentPage, onNavigate }) => {
-  if (currentPage === 'login' || currentPage === 'patient-detail' || currentPage === 'record-detail') return null;
+  if (currentPage === 'login' || currentPage === 'patient-detail' || currentPage === 'record-detail' || currentPage === 'create-record' || currentPage === 'create-patient') return null;
   
   return (
     <div className="tab-bar fixed bottom-0 w-full max-w-md px-6 py-3 flex justify-around items-center z-50">
